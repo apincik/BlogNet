@@ -1,0 +1,223 @@
+﻿@using Core.Entities;
+@using Web.Areas.Cms.ViewModels.Articles
+@using Core.Extensions;
+@using Core.Enum;
+@model ArticleUpdateViewModel
+@{
+    ViewData["Title"] = "Article - Update";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/plugins/codemirror/css/codemirror.min.css" />
+    <link rel="stylesheet" href="~/plugins/froala-editor/css/froala-editor.min.css" />
+    <link rel="stylesheet" href="~/plugins/froala-editor/css/froala-style.min.css" />
+
+    <link rel="stylesheet" href="~/plugins/froala-editor/plugins/css/char_counter.min.css" />
+    <link rel="stylesheet" href="~/plugins/froala-editor/plugins/css/fullscreen.min.css" />
+    <link rel="stylesheet" href="~/plugins/froala-editor/plugins/css/image.min.css" />
+    <link rel="stylesheet" href="~/plugins/froala-editor/plugins/css/table.min.css" />
+    <link rel="stylesheet" href="~/plugins/froala-editor/plugins/css/line_breaker.min.css" />
+    <link rel="stylesheet" href="~/plugins/froala-editor/plugins/css/video.min.css" />
+    <link rel="stylesheet" href="~/plugins/froala-editor/plugins/css/code_view.min.css" />
+
+}
+
+@{
+    var thumbnailPath = Model.PhotoThumbnail != null ?( Model.PhotoThumbnail.IsLocal ? $"{Model.PhotoThumbnail.GetImagePath()}" : Model.PhotoThumbnail.GetImagePath() ) : "";
+    var headerPath = Model.PhotoHeader != null ? (Model.PhotoHeader.IsLocal ? $"{Model.PhotoHeader.GetImagePath()}" : Model.PhotoHeader.GetImagePath()) : "";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Article Update</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+    </div>
+</div>
+
+<div class="pb-5">
+
+    @using (Html.BeginForm("Update", "Article", FormMethod.Post, new { @class = "form", enctype = "multipart/form-data" }))
+    {
+        @Html.HiddenFor(m => m.SeoId);
+        @if (Model.PhotoHeader != null)
+        {
+            @Html.HiddenFor(m => m.PhotoHeaderId)
+        }
+        if (Model.PhotoThumbnail != null)
+        {
+            @Html.HiddenFor(m => m.PhotoThumbnailId)
+        }
+        if (Model.AlbumId != null)
+        {
+            @Html.HiddenFor(m => m.AlbumId)
+        }
+        if(Model.ArticleSettings != null)
+        {
+            @Html.HiddenFor(m => m.ArticleSettings.ArticleId)
+            @Html.HiddenFor(m => m.ArticleSettings.Id)
+        }
+
+        @Html.ValidationMessageFor(m => m.CategoryId)
+        @Html.LabelFor(m => m.CategoryId)
+        @Html.DropDownListFor(m => m.CategoryId, new SelectList(Model.Categories, "Id", "CategoryTree"), "Category", new { @class = "form-control" })
+
+        <br />
+
+        @Html.ValidationMessageFor(m => m.Title)
+        @Html.LabelFor(m => m.Title)
+        @Html.TextBoxFor(m => m.Title, new { @class = "form-control" })
+
+        @Html.ValidationMessageFor(m => m.Description);
+        @Html.LabelFor(m => m.Description);
+        @Html.TextBoxFor(m => m.Description, new { @class = "form-control" })
+
+        @Html.ValidationMessageFor(m => m.Tags)
+        @Html.LabelFor(m => m.Tags)
+        @Html.TextBoxFor(m => m.Tags, new { @class = "form-control" })
+
+
+        <h4 class="mt-4">Seo</h4>
+        <hr />
+
+        @if (Model.Seo != null)
+        {
+            @Html.HiddenFor(m => m.Seo.Id);
+        }
+
+        @Html.LabelFor(m => m.Seo.Title)
+        @Html.TextBoxFor(m => m.Seo.Title, new { @class = "form-control" });
+        @Html.LabelFor(m => m.Seo.Description)
+        @Html.TextBoxFor(m => m.Seo.Description, new { @class = "form-control" });
+        @Html.LabelFor(m => m.Seo.Keywords)
+        @Html.TextBoxFor(m => m.Seo.Keywords, new { @class = "form-control" });
+
+        <h4 class="mt-3">Content</h4>
+        <hr />
+
+        @Html.ValidationMessageFor(m => m.Content)
+        @Html.TextAreaFor(m => m.Content, new { @class = "form-control content" })
+
+        <h4 class="mt-4">Images</h4>
+        <hr />
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <a href="@thumbnailPath" target="_blank">
+                            <img src="@thumbnailPath" class="col-lg-12 mt-2" style="max-height:180px" />
+                        </a>
+                    </div>
+                    <div class="col-lg-6">
+                        @Html.LabelFor(m => m.FileThumbnail)
+                        <br />
+                        @Html.TextBoxFor(m => m.FileThumbnail, new { type = "file" })
+                        <br />
+                        @Html.LabelFor(m => m.RemoteFileThumbnail)
+                        @Html.TextBoxFor(m => m.RemoteFileThumbnail, new { @class = "form-control" })
+                        <br />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+
+                <div class="row">
+                    <div class="col-lg-4">
+                        <a href="@headerPath" target="_blank">
+                            <img src="@headerPath" class="col-lg-12 mt-2" style="max-height:180px" />
+                        </a>
+                    </div>
+                    <div class="col-lg-6">
+                        @Html.LabelFor(m => m.FileHeader)
+                        <br />
+                        @Html.TextBoxFor(m => m.FileHeader, new { type = "file" })
+                        <br />
+                        @Html.LabelFor(m => m.RemoteFileHeader)
+                        @Html.TextBoxFor(m => m.RemoteFileHeader, new { @class = "form-control" })
+                        <br />
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-lg-8">
+                        @Html.LabelFor(m => m.Files)
+                        <br />
+                        @Html.TextBoxFor(m => m.Files, new { type = "file", multiple = true })
+                        <br />
+                    </div>
+                    <div class="col-lg-4">
+                        @if (Model.Album != null)
+                        {
+                            <a href="@Url.Action("Album", "Photo", new { id = Model.Album.Id, area = "Cms"})" class="btn btn-xs btn-info mt-2 col-lg-12" target="_blank">Go to album</a>
+                        }
+                    </div>
+                    <div class="col-lg-12">
+                        @Html.LabelFor(m => m.RemoteFiles)
+                        @Html.TextAreaFor(m => m.RemoteFiles, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="mt-4">Settings</h4>
+        <hr />
+        <div class="row">
+            <div class="col-lg-2">
+                @Html.LabelFor(m => m.ArticleSettings.AdsActive)
+                @Html.CheckBoxFor(m => m.ArticleSettings.AdsActive, new { @class = "checkbox" })
+            </div>
+            <div class="col-lg-2">
+                @Html.LabelFor(m => m.ArticleSettings.PageAdsDensity)
+                @Html.DropDownListFor(m => m.ArticleSettings.PageAdsDensity, Html.GetEnumSelectList<PageAdsDensity>(), "Ads density", new { @class = "form-control" })
+
+            </div>
+            <div class="col-lg-1">
+                @Html.LabelFor(m => m.ArticleSettings.Nsfw)
+                @Html.CheckBoxFor(m => m.ArticleSettings.Nsfw)
+            </div>
+            <div class="col-lg-2">
+                @Html.LabelFor(m => m.ArticleSettings.ShowComments)
+                @Html.CheckBoxFor(m => m.ArticleSettings.ShowComments)
+            </div>
+            <div class="col-lg-2">
+                @Html.LabelFor(m => m.ArticleSettings.ShowSocialPlugins)
+                @Html.CheckBoxFor(m => m.ArticleSettings.ShowSocialPlugins)
+            </div>
+            <div class="col-lg-3">
+                @Html.LabelFor(m => m.ArticleSettings.UpdateSlugOnTitleChange)
+                @Html.CheckBoxFor(m => m.ArticleSettings.UpdateSlugOnTitleChange)
+            </div>
+        </div>
+
+        <input type="submit" value="Submit" class="btn btn-success mt-3" />
+    }
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src="~/plugins/codemirror/js/codemirror.min.js"></script>
+    <script type="text/javascript" src="~/plugins/codemirror/js/xml.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/js/froala-editor.min.js"></script>
+
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/char_counter.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/fullscreen.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/link.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/image.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/table.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/line_height.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/line_breaker.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/paragraph_format.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/paragraph_style.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/font_size.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/video.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/code_beautifier.min.js"></script>
+    <script type="text/javascript" src="~/plugins/froala-editor/plugins/js/code_view.min.js"></script>
+
+
+    <script>
+        $(function () {
+            $('.content').froalaEditor({
+                heightMin: 300
+            })
+        });
+    </script>
+}

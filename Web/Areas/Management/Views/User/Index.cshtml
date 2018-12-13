@@ -1,0 +1,35 @@
+﻿@using Core.Interfaces;
+@using Web.Areas.Management.ViewModels;
+@model UserViewModel
+@{
+    ViewData["Title"] = "Users";
+}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Users</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+    </div>
+</div>
+
+<div>
+    <table class="table top-borderless">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Username</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (IApplicationUser user in Model.Users)
+            {
+            <tr>
+                <td>@user.GetGuid().ToString()</td>
+                <td>@user.GetEmail()</td>
+                <td>@user.GetUserName()</td>
+            </tr>
+            }
+        </tbody>
+</table>
+</div>

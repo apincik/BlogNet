@@ -1,0 +1,10 @@
+﻿@using Web.ViewModels
+@model LoggedUserViewModel
+
+<span class="badge badge-info">@Model.User.UserName</span>
+
+@if (Model.Project != null)
+{
+    @Html.Raw("&nbsp")
+    <span class="badge badge-success">@Model.Project.Name</span>
+}

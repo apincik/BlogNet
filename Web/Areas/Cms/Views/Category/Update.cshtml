@@ -1,0 +1,55 @@
+﻿@using Core.Entities;
+@using Web.Areas.Cms.ViewModels.Categories;
+@using Core.Extensions;
+@using Core.Enum;
+@model CategoryUpdateViewModel
+@{
+    ViewData["Title"] = "Category";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Category Update</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+    </div>
+</div>
+
+    <div>
+
+        @using (Html.BeginForm("Update", "Category", FormMethod.Post, new { @class = "form" }))
+        {
+            @Html.HiddenFor(m => m.Id);
+            @Html.HiddenFor(m => m.ProjectId);
+
+            @Html.ValidationMessageFor(m => m.ParentCategoryId);
+            @Html.LabelFor(m => m.ParentCategoryId);
+            @Html.DropDownListFor(m => m.ParentCategoryId, new SelectList(Model.Categories, "Id", "Title"), "Parent category", new { @class = "form-control" });
+
+            @Html.ValidationMessageFor(m => m.Title);
+            @Html.LabelFor(m => m.Title);
+            @Html.TextBoxFor(m => m.Title, new { @class = "form-control" });
+
+            @Html.ValidationMessageFor(m => m.Description);
+            @Html.LabelFor(m => m.Description);
+            @Html.TextBoxFor(m => m.Description, new { @class = "form-control" });
+
+            <hr />
+            <h4>Seo</h4>
+
+            //Prevent invalid model if seo data row does now exist.
+            @if (Model.Seo != null)
+            {
+                @Html.HiddenFor(m => m.Seo.Id)
+            }
+
+            @Html.LabelFor(m => m.Seo.Title)
+            @Html.TextBoxFor(m => m.Seo.Title, new { @class = "form-control" });
+            @Html.LabelFor(m => m.Seo.Description)
+            @Html.TextBoxFor(m => m.Seo.Description, new { @class = "form-control" });
+            @Html.LabelFor(m => m.Seo.Keywords)
+            @Html.TextBoxFor(m => m.Seo.Keywords, new { @class = "form-control" });
+
+            <hr />
+            
+            <input type="submit" value="Submit" class="btn btn-success mt-3" />
+        }
+    </div>

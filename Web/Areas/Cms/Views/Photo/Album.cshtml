@@ -1,0 +1,82 @@
+﻿@using Core.Entities;
+@using Web.Areas.Cms.ViewModels;
+@using Core.Extensions;
+@using Core.Enum;
+@using Microsoft.AspNetCore.Hosting;
+@model PhotoAlbumViewModel
+
+@inject IHostingEnvironment hostingEnvironment
+
+@{
+    ViewData["Title"] = "Photo";
+}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Photo</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+
+        @using (Html.BeginForm("Upload", "Photo", FormMethod.Post, new { @class = "form-role", enctype = "multipart/form-data" }))
+        {
+            @Html.HiddenFor(m => m.AlbumId)
+
+            @Html.TextBoxFor(m => m.Files, new { type = "file", multiple = true })
+            <input type="submit" value="Upload" class="btn btn-sm btn-success" />
+        }
+
+    </div>
+</div>
+
+<div>
+    <table class="table top-borderless">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>ID</th>
+                <th>AlbumId</th>
+                <th>Name</th>
+                <th>NameNormalized</th>
+                <th>CDN</th>
+                <th>Width x Height</th>
+                <th>Source</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Photo photo in Model.Photos)
+            {
+                <tr>
+                    <td>
+                        <a href="@photo.GetImagePath()" target="_blank">
+                            <img src="@photo.GetImagePath()" width="45" height="45" />
+                        </a>
+                    </td>
+                    <td>@photo.Id</td>
+                    <td>@photo.AlbumId</td>
+                    <td>@photo.Name</td>
+                    <td>@photo.NameNormalized</td>
+                    <td>@photo.CdnPath</td>
+                    <td>@photo.Width x @photo.Height</td>
+                    <td>
+                        @if (photo.IsLocal)
+                        {
+                            <span class="badge badge-primary">Local</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-secondary">External</span>
+                        }
+                    </td>
+                    <td>
+                        <a href="@Url.Action("ToggleStatus", "photo", new { area = "Cms", id = photo.Id, albumId = photo.AlbumId })" class="@(photo.Status == Status.Inactive ? "badge badge-warning" : "badge badge-success" )">
+                            @(DescriptionExtension.GetDescription<Status>(photo.Status))
+                        </a>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                }
+        </tbody>
+</table>
+</div>

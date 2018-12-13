@@ -1,0 +1,1 @@
+﻿dotnet ef migrations add InitialModel --context webcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj -o Data/Migrations

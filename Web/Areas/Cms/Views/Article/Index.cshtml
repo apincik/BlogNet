@@ -1,0 +1,52 @@
+﻿@using Core.Entities;
+@using Web.Areas.Cms.ViewModels.Articles
+@using Core.Extensions;
+@using Core.Enum;
+@model ArticleViewModel
+@{
+    ViewData["Title"] = "Articles";
+}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Articles</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="@Url.Action("Create")" class="btn btn-sm btn-success">Create</a>
+    </div>
+</div>
+
+<div>
+    <table class="table top-borderless">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Category</th>
+                <th>Title</th>
+                <th>Title SEO</th>
+                <th>Slug</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Article article in Model.Articles)
+            {
+                <tr>
+                    <td>@article.Id</td>
+                    <td></td>
+                    <td>@article.Title</td>
+                    <td>@(article.Seo != null ? article.Seo.Title : "")</td>
+                    <td>@article.Slug</td>
+                    <td>
+                        <a href="@Url.Action("ToggleStatus", "Article", new { area = "Cms", id = article.Id})" class="@(article.Status == ArticleStatus.Inactive ? "badge badge-warning" : (article.Status == ArticleStatus.Unpublished ? "badge badge-dark" : "badge badge-success") )">
+                            @(DescriptionExtension.GetDescription<ArticleStatus>(article.Status))
+                        </a>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("Update", "Article", new { area = "Cms", id = article.Id})" class="btn btn-sm btn-warning">Update</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+</table>
+</div>
