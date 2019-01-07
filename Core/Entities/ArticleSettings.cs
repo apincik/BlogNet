@@ -27,7 +27,7 @@ namespace Core.Entities
 
         public ArticleSettings()
         {
-            PageAdsDensity = PageAdsDensity.Low;
+            PageAdsDensity = PageAdsDensity.Default;
             ShowSocialPlugins = true;
             ShowComments = true;
             UpdateSlugOnTitleChange = false;

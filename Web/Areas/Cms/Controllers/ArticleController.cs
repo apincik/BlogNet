@@ -6,6 +6,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Core.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,17 +20,23 @@ namespace Web.Areas.Cms.Controllers
     [Area("Cms")]
     public class ArticleController : Controller
     {
+        private IArticleRepository _articleRepository;
+        private ICategoryRepository _categoryRepository;
         private IArticleService _articleService;
         private ICategoryService _categoryService;
         private IProjectService _projectService;
         private IMapper _mapper;
 
         public ArticleController(
+            IArticleRepository articleRepository,
+            ICategoryRepository categoryRepository,
             IArticleService articleService,
             ICategoryService categoryService,
             IProjectService projectService,
             IMapper mapper)
         {
+            _articleRepository = articleRepository;
+            _categoryRepository = categoryRepository;
             _articleService = articleService;
             _categoryService = categoryService;
             _projectService = projectService;
@@ -39,7 +46,7 @@ namespace Web.Areas.Cms.Controllers
         public async Task<IActionResult> Index()
         {
             int? projectId = HttpContext.Request.Cookies.GetProjectId();
-            var articles = projectId != null ? await _articleService.ListAllByProjectId((int)projectId) : new List<Article>();
+            var articles = projectId != null ? await _articleRepository.ListAllByProjectId((int)projectId) : new List<Article>();
             return View(new ArticleViewModel
             {
                 Articles = articles
@@ -59,7 +66,7 @@ namespace Web.Areas.Cms.Controllers
             var model = new ArticleCreateViewModel()
             {
                 ProjectId = projectId,
-                Categories = await _categoryService.ListAllByProjectId(projectId)
+                Categories = await _categoryRepository.ListAllByProjectId(projectId)
             };
 
             return View(model);
@@ -85,9 +92,9 @@ namespace Web.Areas.Cms.Controllers
 
         public async Task<IActionResult> Update(int id)
         {
-            var article = await _articleService.Get((int)id);
+            var article = await _articleRepository.Get((int)id);
             var model = _mapper.Map<ArticleUpdateViewModel>(article);
-            model.Categories = await _categoryService.ListAllByProjectId(article.ProjectId);
+            model.Categories = await _categoryRepository.ListAllByProjectId(article.ProjectId);
 
             return View(model);
         }
@@ -105,7 +112,7 @@ namespace Web.Areas.Cms.Controllers
                 return RedirectToAction("update", new { id = model.Id }).WithWarning("Info", "Cannot be updated");
             }
 
-            var article = await _articleService.Get(model.Id);
+            var article = await _articleRepository.Get(model.Id);
             var articleModel = _mapper.Map(model, article);
             await _articleService.Update(articleModel, _mapper.Map<ArticleImagesDto>(model));
 

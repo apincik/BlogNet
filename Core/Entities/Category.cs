@@ -33,10 +33,19 @@ namespace Core.Entities
 
         public List<Article> Articles { get; set; }
 
+        // @TODO Rename to labels.
         public string CategoryTree {
             get
             {
                 return GetCategoryTree();
+            }
+        }
+
+        public List<string> SubCategoryTree
+        {
+            get
+            {
+                return GetSubCategoryTree();
             }
         }
 
@@ -52,8 +61,15 @@ namespace Core.Entities
                 parent = parent.ParentCategory;
             }
 
-
             return s.ToString().Trim();
+        }
+
+        private List<string> GetSubCategoryTree()
+        {
+            List<string> subs = new List<string>();
+            SubCategories.ForEach(s => subs.Add(s.Title));
+   
+            return subs;
         }
     }
 }

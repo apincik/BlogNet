@@ -2,7 +2,7 @@
 using Core.Enum;
 using Core.Exceptions;
 using Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Core.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,17 +11,20 @@ using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class SeoService : Service<Seo>, ISeoService
+    public class SeoService : ISeoService
     {
-        public SeoService(IAsyncModel<Seo> model) : base(model)
+        private ISeoRepository _seoRepository;
+
+        public SeoService(ISeoRepository seoRepository)
         {
+            _seoRepository = seoRepository;
         }
 
-        public async Task<Seo> Create(Seo seo)
+        public Task Create(Seo seo)
         {
             if (!seo.IsEmpty())
             {
-                return await Repository.AddAsync(seo);
+                return _seoRepository.Add(seo);
             }
             else
             {
@@ -29,15 +32,14 @@ namespace Core.Services
             }
         }
 
-        public async Task<Seo> Update(Seo seo)
+        public Task Update(Seo seo)
         {
             if(seo.Id == 0)
             {
                 throw new EmptyDatabaseEntityException("Trying to update nonexisting entity of type Seo.");
             }
 
-            await Repository.UpdateAsync(seo);
-            return seo;
+            return _seoRepository.Update(seo);
         }
     }
 }

@@ -8,15 +8,12 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IArticleService : IService<Article>
+    public interface IArticleService
     {
-        Task<Article> Create(Article article);
-        Task<Article> Create(Article article, ArticleImagesDto articleImages);
-        Task<Article> Update(Article article);
-        Task<Article> Update(Article article, ArticleImagesDto articleImages);
-
-        Task<List<Article>> ListAllByProjectId(int projectId);
+        Task Create(Article article);
+        Task Create(Article article, ArticleImagesDto articleImages);
+        Task Update(Article article);
+        Task Update(Article article, ArticleImagesDto articleImages);
         Task ToggleStatusById(int id);
-        Task<Article> Get(int id);
     }
 }

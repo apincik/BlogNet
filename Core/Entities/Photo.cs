@@ -29,6 +29,9 @@ namespace Core.Entities
         [Required]
         [MaxLength(64)]
         public string Hash { get; set; }
+        
+        [MaxLength(64)]
+        public string ImageHash { get; set; }
 
         [Required]
         public int Width { get; set; }
@@ -66,11 +69,11 @@ namespace Core.Entities
         {
             if(IsLocal)
             {
-                return Path.Combine($"/{RelativePath}", AlbumId.ToString(), $"{Hash}.{Extension}");
+                return Path.Combine($"/{RelativePath}", AlbumId.ToString(), $"{Hash}.{Extension}").Replace(@"\", "/");
             } 
             else
             {
-                return Path.Combine($"{Protocol}://{DomainName}/", RelativePath, AlbumId.ToString(), $"{Hash}.{Extension}");
+                return Path.Combine($"{Protocol}://{DomainName}/", RelativePath, AlbumId.ToString(), $"{Hash}.{Extension}").Replace(@"\", "/");
             }
         }
     }

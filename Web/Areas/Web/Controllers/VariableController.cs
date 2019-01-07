@@ -6,6 +6,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Web.Areas.Cms.ViewModels;
@@ -20,20 +21,23 @@ namespace Web.Areas.Cms.Controllers
     public class VariableController : Controller
     {
         private IMapper _mapper;
+        private ITemplateVariableRepository _templateVariableRepository;
         private ITemplateVariableService _templateVariableService;
 
         public VariableController(
             IMapper mapper,
+            ITemplateVariableRepository templateVariableRepository,
             ITemplateVariableService templateVariableService)
         {
             _mapper = mapper;
+            _templateVariableRepository = templateVariableRepository;
             _templateVariableService = templateVariableService;
         }
         
         public async Task<IActionResult> Index()
         {
             int? projectId = HttpContext.Request.Cookies.GetProjectId();
-            var variables = projectId != null ? await _templateVariableService.ListAllByProjectId((int)projectId) : new List<TemplateVariable>();
+            var variables = projectId != null ? await _templateVariableRepository.ListAllByProjectId((int)projectId) : new List<TemplateVariable>();
             return View(new VariableViewModel
             {
                 Variables = variables
@@ -52,7 +56,7 @@ namespace Web.Areas.Cms.Controllers
             var model = new VariableCreateViewModel();
             int projectId = HttpContext.Request.Cookies.GetProjectId().Value;
             model.ProjectId = projectId;
-            model.Variables = await _templateVariableService.ListAllByProjectId(projectId);
+            model.Variables = await _templateVariableRepository.ListAllByProjectId(projectId);
 
             return View(model);
         }
@@ -69,7 +73,7 @@ namespace Web.Areas.Cms.Controllers
             {
                 int projectId = HttpContext.Request.Cookies.GetProjectId().Value;
                 model.ProjectId = projectId;
-                model.Variables = await _templateVariableService.ListAllByProjectId(projectId);
+                model.Variables = await _templateVariableRepository.ListAllByProjectId(projectId);
                 return View("create", model).WithWarning("Info", "Error occured, cannot be saved.");
             }
 
@@ -82,9 +86,9 @@ namespace Web.Areas.Cms.Controllers
         [CheckProjectSet]
         public async Task<IActionResult> Update(int id)
         {
-            var variable = await _templateVariableService.Get(id);
+            var variable = await _templateVariableRepository.Get(id);
             var model = _mapper.Map<VariableUpdateViewModel>(variable);
-            model.Variables = await _templateVariableService.ListAllByProjectId(model.ProjectId);
+            model.Variables = await _templateVariableRepository.ListAllByProjectId(model.ProjectId);
             model.Variables = model.Variables.Where(c => c.Id != model.Id).ToList();
 
             return View(model);

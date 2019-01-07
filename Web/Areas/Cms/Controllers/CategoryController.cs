@@ -6,6 +6,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Web.Areas.Cms.ViewModels;
@@ -18,15 +19,18 @@ namespace Web.Areas.Cms.Controllers
     [Area("Cms")]
     public class CategoryController : Controller
     {
+        private ICategoryRepository _categoryRepository;
         private ICategoryService _categoryService;
         private IProjectService _projectService;
         private IMapper _mapper;
 
         public CategoryController(
+            ICategoryRepository categoryRepository,
             ICategoryService categoryService,
             IProjectService projectService,
             IMapper mapper)
         {
+            _categoryRepository = categoryRepository;
             _categoryService = categoryService;
             _projectService = projectService;
             _mapper = mapper;
@@ -39,7 +43,7 @@ namespace Web.Areas.Cms.Controllers
         public async Task<IActionResult> Index()
         {
             int? projectId = HttpContext.Request.Cookies.GetProjectId();
-            var categories = projectId != null ? await _categoryService.ListAllByProjectId((int)projectId) : new List<Category>();
+            var categories = projectId != null ? await _categoryRepository.ListAllByProjectId((int)projectId) : new List<Category>();
             return View(new CategoryViewModel
             {
                 Categories = categories
@@ -68,7 +72,7 @@ namespace Web.Areas.Cms.Controllers
             var model = new CategoryCreateViewModel()
             {
                 ProjectId = projectId,
-                Categories = await _categoryService.ListAllByProjectId(projectId)
+                Categories = await _categoryRepository.ListAllByProjectId(projectId)
             };
             
             return View(model);
@@ -101,10 +105,10 @@ namespace Web.Areas.Cms.Controllers
         [CheckProjectSet]
         public async Task<IActionResult> Update(int id)
         {
-            var category = await _categoryService.GetWithSeo((int)id);
+            var category = await _categoryRepository.GetWithSeo((int)id);
             var model = _mapper.Map<CategoryUpdateViewModel>(category);
 
-            var categories = await _categoryService.ListAllByProjectId(model.ProjectId);
+            var categories = await _categoryRepository.ListAllByProjectId(model.ProjectId);
             model.Categories = categories.Where(c => c.Id != model.Id).ToList();
 
             return View(model);

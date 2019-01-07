@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IProjectService : IService<Project>
+    public interface IProjectService
     {
-        Task<Project> Create(Project project);
-        Task<Project> Update(Project project);
-        Task<List<Project>> ListAllByUserId(string userId);
+        Task Create(Project project);
+        Task Update(Project project);
     }
 }

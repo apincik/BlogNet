@@ -1,7 +1,7 @@
 ﻿using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Core.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,35 +10,29 @@ using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class PageForwardService : Service<PageForward>, IPageForwardService
+    public class PageForwardService : IPageForwardService
     {
-        public PageForwardService(IAsyncModel<PageForward> model) : base(model)
-        {
+        private IPageForwardRepository _pageForwardRepository;
 
+        public PageForwardService(IPageForwardRepository pageForwardRepository)
+        {
+            _pageForwardRepository = pageForwardRepository;
         }
 
-        public Task<PageForward> Create(PageForward forward)
+        public Task Create(PageForward forward)
         {
-            return Repository.AddAsync(forward);
+            return _pageForwardRepository.Add(forward);
         }
 
-        public async Task<PageForward> Update(PageForward forward)
+        public Task Update(PageForward forward)
         {
-            await Repository.UpdateAsync(forward);
-            return forward;
-        }
-    
-        public Task<List<PageForward>> ListAllByProjectId(int id)
-        {
-            return Repository.Table()
-                .Where(m => m.ProjectId == id)
-                .ToListAsync();
+            return _pageForwardRepository.Update(forward);
         }
 
         public async Task DeleteById(int id)
         {
-            PageForward forward = await Repository.Table().FindAsync(id);
-            await Repository.DeleteAsync(forward);
+            PageForward forward = await _pageForwardRepository.Get(id);
+            await _pageForwardRepository.Delete(forward);
         }
     }
 }

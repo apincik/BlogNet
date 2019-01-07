@@ -3,6 +3,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Web.Areas.Cms.ViewModels.Albums;
 using Web.Extensions;
@@ -12,20 +13,23 @@ namespace Web.Areas.Cms.Controllers
     [Area("Cms")]
     public class AlbumController : Controller
     {
+        private IAlbumRepository _albumRepository;
         private IAlbumService _albumService;
         private IMapper _mapper;
 
         public AlbumController(
+            IAlbumRepository albumRepository,
             IAlbumService albumService,
             IMapper mapper)
         {
+            _albumRepository = albumRepository;
             _albumService = albumService;
             _mapper = mapper;
         }
 
         public async Task<IActionResult> Index()
         {
-            var albums = await _albumService.ListAll();
+            var albums = await _albumRepository.ListAll();
             return View(new AlbumViewModel()
             {
                 Albums = albums
@@ -64,7 +68,7 @@ namespace Web.Areas.Cms.Controllers
 
         public async Task<IActionResult> Update(int id)
         {
-            var album = await _albumService.Get((int)id);
+            var album = await _albumRepository.Get((int)id);
             var model = _mapper.Map<AlbumUpdateViewModel>(album);
 
             return View(model);

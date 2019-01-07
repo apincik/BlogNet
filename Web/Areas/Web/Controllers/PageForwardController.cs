@@ -6,6 +6,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Web.Areas.Web.ViewModels.PageForwards;
 using Web.Extensions;
@@ -17,20 +18,23 @@ namespace Web.Areas.Cms.Controllers
     public class PageForwardController : Controller
     {
         private IMapper _mapper;
+        public IPageForwardRepository _pageForwardRepository;
         private IPageForwardService _pageForwardService;
 
         public PageForwardController(
             IMapper mapper,
+            IPageForwardRepository pageForwardRepository,
             IPageForwardService pageForwardService)
         {
             _mapper = mapper;
+            _pageForwardRepository = pageForwardRepository;
             _pageForwardService = pageForwardService;
         }
         
         public async Task<IActionResult> Index()
         {
             int? projectId = HttpContext.Request.Cookies.GetProjectId();
-            var forwards = projectId != null ? await _pageForwardService.ListAllByProjectId((int)projectId) : new List<PageForward>();
+            var forwards = projectId != null ? await _pageForwardRepository.ListAllByProjectId((int)projectId) : new List<PageForward>();
             return View(new PageForwardViewModel
             {
                 Forwards = forwards
@@ -75,7 +79,7 @@ namespace Web.Areas.Cms.Controllers
         [CheckProjectSet]
         public async Task<IActionResult> Update(int id)
         {
-            var forward = await _pageForwardService.Get(id);
+            var forward = await _pageForwardRepository.Get(id);
             var model = _mapper.Map<PageForwardUpdateViewModel>(forward);
 
             return View(model);

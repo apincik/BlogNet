@@ -7,10 +7,10 @@ namespace Core.Enum
 {
     public enum PageAdsDensity
     {
+        [Description("Default")]
+        Default,
         [Description("Low")]
         Low,
-        [Description("Medium")]
-        Medium,
         [Description("High")]
         High
     }

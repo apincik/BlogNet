@@ -10,6 +10,8 @@ namespace Core.Model
 
         public string Hash { get; set; }
 
+        public string ImageHash { get; set; }
+
         public string BasePath { get; set; }
         public string RelativePath { get; set; }
         public string Name { get; set; }

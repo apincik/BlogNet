@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Core.Services;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Http;
@@ -18,13 +19,13 @@ namespace Web.ViewComponents
     public class LoggedUserViewComponent : ViewComponent
     {
         private UserManager<ApplicationUser> _userManager;
-        private IProjectService _projectService;
+        private IProjectRepository _projectRepository;
         //private IHttpContextAccessor _httpContext;
 
-        public LoggedUserViewComponent(UserManager<ApplicationUser> userManager, IProjectService projectService)
+        public LoggedUserViewComponent(UserManager<ApplicationUser> userManager, IProjectRepository projectRepository)
         {
             _userManager = userManager;
-            _projectService = projectService;
+            _projectRepository = projectRepository;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
@@ -33,7 +34,7 @@ namespace Web.ViewComponents
             int? selectedProjectId = HttpContext.Request.Cookies.GetProjectId();
             if(selectedProjectId != null)
             {
-                project = await _projectService.Get(selectedProjectId);
+                project = await _projectRepository.Get(selectedProjectId.Value);
             }
 
             var user = await _userManager.GetUserAsync(HttpContext.User);

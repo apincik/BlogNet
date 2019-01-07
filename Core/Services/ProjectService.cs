@@ -1,6 +1,6 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Core.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,34 +9,24 @@ using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class ProjectService : Service<Project>, IProjectService
+    public class ProjectService : IProjectService
     {
-        public ProjectService(IAsyncModel<Project> model) : base(model)
+        private IProjectRepository _projectRepository;
+
+        public ProjectService(IProjectRepository projectRepository)
         {
+            _projectRepository = projectRepository;
         }
 
-        public Task<Project> Create(Project project)
+        public Task Create(Project project)
         {
-            return Repository.AddAsync(project);
+            return _projectRepository.Add(project);
         }
 
-        public async Task<Project> Update(Project project)
+        public Task Update(Project project)
         {
             // Project settings created as entity is being attached, otherwise call service.
-            await Repository.UpdateAsync(project);
-            return project;
-        }
-
-        public Task<List<Project>> ListAllByUserId(string userId)
-        {
-            return Repository.Table().Where(p => p.UserId == userId).ToListAsync();
-        }
-
-        public override Task<Project> Get(params object[] values)
-        {
-            return Repository.Table()
-                .Include(m => m.ProjectSettings)
-                .FirstOrDefaultAsync(m => m.Id == (int) values[0]);
+            return _projectRepository.Update(project);
         }
     }
 }

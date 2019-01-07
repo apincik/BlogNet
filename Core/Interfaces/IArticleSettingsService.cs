@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IArticleSettingsService : IService<ArticleSettings>
+    public interface IArticleSettingsService
     {
-        Task<ArticleSettings> Create(ArticleSettings category);
+        Task Create(ArticleSettings category);
         Task Update(ArticleSettings category);
     }
 }

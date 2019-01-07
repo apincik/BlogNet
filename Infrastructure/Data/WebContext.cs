@@ -34,6 +34,10 @@ namespace Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<Article>()
+                .HasIndex(p => new { p.Slug, p.ProjectId })
+                .IsUnique();
         }
 
         private void SaveAudit()

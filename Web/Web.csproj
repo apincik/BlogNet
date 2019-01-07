@@ -25,7 +25,6 @@
     <Folder Include="Areas\Account\Views\Shared\" />
     <Folder Include="Interfaces\" />
     <Folder Include="Services\" />
-    <Folder Include="ViewModels\" />
     <Folder Include="wwwroot\images\" />
     <Folder Include="wwwroot\lib\" />
     <Folder Include="wwwroot\plugins\font-awesome\fonts\" />

@@ -57,6 +57,21 @@ namespace Infrastructure.Services
                 return null;
         }
 
+        // Sha256 
+        // @TODO In case of need, move to separate class.
+        private string ComputeHash(byte[] data)
+        {
+            var crypt = new System.Security.Cryptography.SHA256Managed();
+            var hash = new System.Text.StringBuilder();
+            byte[] crypto = crypt.ComputeHash(data);
+            foreach (byte theByte in crypto)
+            {
+                hash.Append(theByte.ToString("x2"));
+            }
+
+            return hash.ToString();
+        }
+
         public async Task<List<ImageFileDto>> UploadImages(int albumId, List<IFormFile> files)
         {
             List<ImageFileDto> uploadedFiles = new List<ImageFileDto>();
@@ -86,10 +101,13 @@ namespace Infrastructure.Services
                 }
 
                 Image image = Image.FromFile(filePath);
+                byte[] imageData = await File.ReadAllBytesAsync(filePath);
+                string imageHash = ComputeHash(imageData);
 
                 uploadedFiles.Add(new ImageFileDto
                 {
                     Hash = fileGuid,
+                    ImageHash = imageHash,
                     BasePath = _hostingEnvironment.WebRootPath,
                     RelativePath = _configuration["ImageUploads:LocalRelativePath"],
                     Name = file.FileName.Replace(extension, ""),
@@ -116,6 +134,7 @@ namespace Infrastructure.Services
                 }
 
                 // Guid used temporary instead computing hash from attributes
+                var filename = filelink.Split("/").LastOrDefault();
                 var fileGuid = Guid.NewGuid().ToString();
                 var uniqueFileName = fileGuid + extension;
                 var uploads = Path.Combine(_hostingEnvironment.WebRootPath, _configuration["ImageUploads:LocalRelativePath"]);
@@ -138,13 +157,16 @@ namespace Infrastructure.Services
                 }
 
                 Image image = Image.FromFile(filePath);
+                byte[] imageData = await File.ReadAllBytesAsync(filePath);
+                string imageHash = ComputeHash(imageData);
 
                 uploadedFiles.Add(new ImageFileDto
                 {
                     Hash = fileGuid,
+                    ImageHash = imageHash,
                     BasePath = _hostingEnvironment.WebRootPath,
                     RelativePath = _configuration["ImageUploads:LocalRelativePath"],
-                    Name = fileGuid,
+                    Name = filename,
                     Width = image.Width,
                     Height = image.Height,
                     IsLocal = true,

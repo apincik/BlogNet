@@ -1,7 +1,7 @@
 ﻿using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Core.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,38 +10,30 @@ using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class TemplateVariableService : Service<TemplateVariable>, ITemplateVariableService
+    public class TemplateVariableService : ITemplateVariableService
     {
-        public TemplateVariableService(IAsyncModel<TemplateVariable> model) : base(model)
-        {
+        private ITemplateVariableRepository _templateVariableRepository;
 
+        public TemplateVariableService(ITemplateVariableRepository templateVariableRepository)
+        {
+            _templateVariableRepository = templateVariableRepository;
         }
 
-        public Task<TemplateVariable> Create(TemplateVariable variable)
+        public Task Create(TemplateVariable variable)
         {
-            return Repository.AddAsync(variable);
+            return _templateVariableRepository.Add(variable);
         }
 
-        public async Task<TemplateVariable> Update(TemplateVariable variable)
+        public Task Update(TemplateVariable variable)
         {
-            await Repository.UpdateAsync(variable);
-            return variable;
-        }
-
-
-        public Task<List<TemplateVariable>> ListAllByProjectId(int id)
-        {
-            return Repository.Table()
-                .Include(m => m.ParentTemplateVariable)
-                .Where(m => m.ProjectId == id)
-                .ToListAsync();
+            return _templateVariableRepository.Update(variable);
         }
 
         public async Task ToggleStatusById(int id)
         {
-            TemplateVariable variable = await Repository.Table().FindAsync(id);
+            TemplateVariable variable = await _templateVariableRepository.Find(id);
             variable.Status = variable.Status == Status.Inactive ? Status.Active : Status.Inactive;
-            await Repository.UpdateAsync(variable);
+            await _templateVariableRepository.Update(variable);
         }
     }
 }

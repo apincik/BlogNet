@@ -56,8 +56,7 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<DateTime>("CreatedAt");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(255);
+                    b.Property<string>("Description");
 
                     b.Property<int?>("PhotoHeaderId");
 
@@ -95,6 +94,9 @@ namespace Infrastructure.Data.Migrations
                     b.HasIndex("ProjectId");
 
                     b.HasIndex("SeoId");
+
+                    b.HasIndex("Slug", "ProjectId")
+                        .IsUnique();
 
                     b.ToTable("cms_article");
                 });
@@ -247,6 +249,9 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<int>("Height");
 
+                    b.Property<string>("ImageHash")
+                        .HasMaxLength(64);
+
                     b.Property<bool>("IsLocal");
 
                     b.Property<string>("Name")
@@ -292,6 +297,7 @@ namespace Infrastructure.Data.Migrations
                     b.Property<string>("Description");
 
                     b.Property<string>("DomainName")
+                        .IsRequired()
                         .HasMaxLength(30);
 
                     b.Property<string>("Name")
@@ -371,7 +377,7 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<int?>("ParentTemplateVariableId");
 
-                    b.Property<int?>("ProjectId");
+                    b.Property<int>("ProjectId");
 
                     b.Property<bool>("ShowRaw");
 
@@ -487,7 +493,8 @@ namespace Infrastructure.Data.Migrations
 
                     b.HasOne("Core.Entities.Project", "Project")
                         .WithMany()
-                        .HasForeignKey("ProjectId");
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

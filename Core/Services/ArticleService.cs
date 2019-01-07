@@ -2,38 +2,44 @@
 using Core.Enum;
 using Core.Extensions;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Core.Model;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class ArticleService : Service<Article>, IArticleService
+    public class ArticleService : IArticleService
     {
+        IArticleRepository _articleRepository;
+        IPhotoRepository _photoRepository;
         ISeoService _seoService;
         IAlbumService _albumService;
         IPhotoService _photoService;
         IArticleSettingsService _articleSettingsService;
 
         public ArticleService(
-            IAsyncModel<Article> model, 
+            IArticleRepository articleRepository,
+            IPhotoRepository photoRepository,
             ISeoService seoService,
             IAlbumService albumService,
             IPhotoService photoService,
-            IArticleSettingsService articleSettingsService) : base(model)
+            IArticleSettingsService articleSettingsService)
         {
+            _articleRepository = articleRepository;
+            _photoRepository = photoRepository;
             _seoService = seoService;
             _albumService = albumService;
             _photoService = photoService;
             _articleSettingsService = articleSettingsService;
         }
 
-        public async Task<Article> Create(Article article)
+        public Task Create(Article article)
         {
             article.Status = ArticleStatus.Inactive;
             article.Slug = article.Title.GenerateSlug();
@@ -48,31 +54,23 @@ namespace Core.Services
             //Create default article settings
             article.ArticleSettings = new ArticleSettings();
 
-            // Store article
-            article = await Repository.AddAsync(article);
-
-            // Create article settings
-//          articleSettings.ArticleId = article.Id;
-//          await _articleSettingsService.Create(articleSettings);
-
-            return article;
+            return _articleRepository.Add(article);
         }
 
-        public async Task<Article> Create(Article article, ArticleImagesDto articleImages)
+        public async Task Create(Article article, ArticleImagesDto articleImages)
         {
-            var storedArticle = await Create(article);
+            await Create(article);
 
             // Create album
-            var album = await CreateAlbum(storedArticle.ProjectId, storedArticle.Id);
-            storedArticle.AlbumId = album.Id;
+            var album = await CreateAlbum(article.ProjectId, article.Id);
+            article.AlbumId = album.Id;
 
-            await SaveImages(storedArticle, articleImages);
-            await Repository.UpdateAsync(storedArticle);
-
-            return article;
+            await SaveImages(article, articleImages);
+            await _articleRepository.Update(article);
+            await ProcessArticleImageContent(article);
         }
 
-        public async Task<Article> Update(Article article)
+        public Task Update(Article article)
         {
             //Update Seo data, if does not exist, create new entity.
             if (article.Seo.IsEmpty() && article.Seo.Id == 0)
@@ -81,43 +79,85 @@ namespace Core.Services
                 article.SeoId = null;
             }
 
-            await Repository.UpdateAsync(article);
-            return article;
+            return _articleRepository.Update(article);
         }
 
-        public async Task<Article> Update(Article article, ArticleImagesDto articleImages)
+        public async Task Update(Article article, ArticleImagesDto articleImages)
         {
-            var storedArticle = await Update(article);
+            await Update(article);
 
             // Create album if does not exist
-            if (storedArticle.AlbumId == null)
+            if (article.AlbumId == null)
             {
-                var album = await CreateAlbum(storedArticle.ProjectId, storedArticle.Id);
-                storedArticle.AlbumId = album.Id;
+                var album = await CreateAlbum(article.ProjectId, article.Id);
+                article.AlbumId = album.Id;
             }
 
-            await SaveImages(storedArticle, articleImages);
-
-            await Repository.UpdateAsync(storedArticle);
-            return storedArticle;
+            await SaveImages(article, articleImages);
+            await _articleRepository.Update(article);
+            await ProcessArticleImageContent(article);
         }
 
         public async Task ToggleStatusById(int id)
         {
-            Article article = await Repository.Table().FindAsync(id);
+            Article article = await _articleRepository.Get(id);
             article.Status = article.Status == ArticleStatus.Inactive ? ArticleStatus.Unpublished :
                 (article.Status == ArticleStatus.Unpublished ? ArticleStatus.Published :
                 (article.Status == ArticleStatus.Published ? ArticleStatus.Unpublished : ArticleStatus.Inactive));
 
-            await Repository.UpdateAsync(article);
+            await _articleRepository.Update(article);
         }
 
-        private Task<Album> CreateAlbum(int projectId, int articleId)
+        // @TODO Move to some CMS handle.
+        private async Task ProcessArticleImageContent(Article article)
+        {
+            List<Photo> photos = article.AlbumId != null ? await _photoRepository.ListAllByAlbumId(article.AlbumId.Value) : new List<Photo>();
+
+            // Get images from article album.
+            var images = photos.Where(p => p.Type == PhotoType.Image).ToList();
+            if(images.Count() == 0)
+            {
+                return;
+            }
+            
+            // Find all <img> in content
+            var imgSourceExpression = new Regex("<img[ a-zA-z\"'/=]*src=\"(?<ImageSource>[^\"]*)\"", RegexOptions.Multiline);
+            var matches = imgSourceExpression.Matches(article.Content);
+            int imageCount = 0;
+
+            // Replace all img with relative path and unset data attribute matches in article content with album photo using default order. 
+            foreach (Match match in matches)
+            {
+                string imagePath = match.Groups["ImageSource"].Value;
+
+                // @TODO remove http: check in case of inserting CND or other path of stored album image
+                if (!imagePath.StartsWith("http:") && !match.Value.Contains(@"data-cms-source=""album""") && images.Count() >= imageCount + 1)
+                {
+                    string imageTag = match.Value;
+                    // Find same album image as linked one in content by source path
+                    Photo existingImage = images.Where(i => i.GetImagePath() == imagePath).FirstOrDefault();
+                    // Do not increment if actual replaced image is existing, this scenario could occurs when manually editing content source, unknown album local file for example
+                    Photo actualImage = existingImage == null ? images[imageCount++] : images[imageCount];
+                    string imageSource = existingImage == null ? actualImage.GetImagePath() : existingImage.GetImagePath();
+                    int imageId = existingImage == null ? actualImage.Id : existingImage.Id;
+
+                    imageTag = Regex.Replace(imageTag, @"src=""[^""]*""", @"src=""" + imageSource + @"""");
+                    imageTag = Regex.Replace(imageTag, @"<img ", @"<img data-cms-source=""album"" data-cms-source-id=""" + imageId + @"""");
+                    article.Content = article.Content.Replace(match.Value, imageTag);
+                }   
+            }
+
+            await _articleRepository.Update(article);
+        }
+
+        private async Task<Album> CreateAlbum(int projectId, int articleId)
         {
             var album = new Album();
             album.Name = $"{projectId}-article-{articleId}";
+            album.Status = Status.Active;
 
-            return _albumService.Create(album, AlbumType.Article);
+            await _albumService.Create(album, AlbumType.Article);
+            return album;
         }
 
         /// <summary>
@@ -144,7 +184,7 @@ namespace Core.Services
             }
 
             // Upload others to album
-            if (articleImages.Files.Count > 0)
+            if (articleImages.Files != null && articleImages.Files.Count > 0)
             {
                 await _photoService.UploadImages(storedArticle.AlbumId.Value, articleImages.Files, PhotoType.Image);
             }
@@ -172,42 +212,5 @@ namespace Core.Services
 
             return storedArticle;
         }
-
-        #region Listing
-
-        public override Task<List<Article>> ListAll()
-        {
-            return Repository.Table()
-                .Include(m => m.Category)
-                .Include(m => m.Seo)
-                .ToListAsync();
-        }
-
-        public Task<List<Article>> ListAllByProjectId(int projectId)
-        {
-            return Repository.Table()
-                .Include(m => m.Category)
-                .Include(m => m.Seo)
-                .Where(m => m.ProjectId == projectId)
-                .ToListAsync();
-        }
-
-        public Task<Article> Get(int id)
-        {
-            return Repository.Table()
-                //.AsNoTracking()
-                .Include(a => a.Category)
-                .Include(a => a.Seo)
-                .Include(a => a.PhotoHeader)
-                .Include(a => a.PhotoThumbnail)
-                .Include(a => a.Album)
-                    .ThenInclude(album => album.Photos)
-                .Include(a => a.ArticleSettings)
-                    .AsNoTracking()
-                .Where(a => a.Id == id)
-                .FirstAsync();
-        }
-
-        #endregion
     }
 }

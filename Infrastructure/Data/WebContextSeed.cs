@@ -19,6 +19,7 @@ namespace Infrastructure.Data
                 Project project = new Project();
                 project.Id = 1;
                 project.Name = "TestProject";
+                project.DomainName = "localhost";
                 project.UserId = userId;
                 webContext.Add(project);
                 await webContext.SaveChangesAsync();

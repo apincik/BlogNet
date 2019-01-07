@@ -3,10 +3,10 @@ using Core.Entities;
 using Core.Enum;
 using Core.Extensions;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Core.Model;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,18 +16,20 @@ using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class PhotoService : Service<Photo>, IPhotoService
+    public class PhotoService : IPhotoService
     {
+        private IPhotoRepository _photoRepository;
         private IMapper _mapper;
         private IHostingEnvironment _hostingEnvironment;
         private IImageFileUploadService _imageFileUploadService;
 
         public PhotoService(
-            IAsyncModel<Photo> model,
+            IPhotoRepository photoRepository,
             IMapper mapper,
             IHostingEnvironment hostingEnvironment,
-            IImageFileUploadService imageFileUploadService) : base(model)
+            IImageFileUploadService imageFileUploadService)
         {
+            _photoRepository = photoRepository;
             _mapper = mapper;
             _hostingEnvironment = hostingEnvironment;
             _imageFileUploadService = imageFileUploadService;
@@ -35,9 +37,9 @@ namespace Core.Services
 
         public async Task ToggleStatusById(int id)
         {
-            Photo photo = await Repository.Table().FindAsync(id);
+            Photo photo = await _photoRepository.Get(id);
             photo.Status = photo.Status == Status.Inactive ? Status.Active : Status.Inactive;
-            await Repository.UpdateAsync(photo);
+            await _photoRepository.Update(photo);
         }
 
         /// <summary>
@@ -58,7 +60,7 @@ namespace Core.Services
                 photo.Status = Status.Active;
                 photo.Type = photoType;
 
-                var storedPhoto = await Repository.AddAsync(photo);
+                var storedPhoto = await _photoRepository.Add(photo);
                 upload.Id = storedPhoto.Id;
             }
 
@@ -83,18 +85,11 @@ namespace Core.Services
                 photo.Status = Status.Active;
                 photo.Type = photoType;
 
-                var storedPhoto = await Repository.AddAsync(photo);
+                var storedPhoto = await _photoRepository.Add(photo);
                 upload.Id = storedPhoto.Id;
             }
 
             return uploads;
-        }
-
-        public Task<List<Photo>> ListAllByAlbumId(int albumId)
-        {
-            return Repository.Table()
-                .Where(p => p.AlbumId == albumId)
-                .ToListAsync();
         }
     }
 }

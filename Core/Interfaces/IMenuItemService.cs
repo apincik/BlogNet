@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IMenuItemService : IService<MenuItem>
+    public interface IMenuItemService
     {
-        Task<MenuItem> Create(MenuItem album);
-        Task<MenuItem> Update(MenuItem album);
-        Task<List<MenuItem>> ListAllByProjectId(int id);
-        Task DeleteAsyncById(int id);
+        Task Create(MenuItem album);
+        Task Update(MenuItem album);
+        Task Delete(int id);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Core.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,36 +10,29 @@ using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class MenuItemService : Service<MenuItem>, IMenuItemService
+    public class MenuItemService : IMenuItemService
     {
-        public MenuItemService(IAsyncModel<MenuItem> model) : base(model)
-        {
+        private IMenuItemRepository _menuItemRepository;
 
+        public MenuItemService(IMenuItemRepository menuItemRepository)
+        {
+            _menuItemRepository = menuItemRepository;
         }
 
-        public Task<MenuItem> Create(MenuItem variable)
+        public Task Create(MenuItem variable)
         {
-            return Repository.AddAsync(variable);
+            return _menuItemRepository.Add(variable);
         }
 
-        public async Task<MenuItem> Update(MenuItem variable)
+        public Task Update(MenuItem variable)
         {
-            await Repository.UpdateAsync(variable);
-            return variable;
+             return _menuItemRepository.Update(variable);
         }
 
-
-        public Task<List<MenuItem>> ListAllByProjectId(int id)
+        public async Task Delete(int id)
         {
-            return Repository.Table()
-                .Where(m => m.ProjectId == id)
-                .ToListAsync();
-        }
-
-        public Task DeleteAsyncById(int id)
-        {
-            var item = Repository.Table().Find(id);
-            return Repository.DeleteAsync(item);
+            var item = await _menuItemRepository.Get(id);
+            await _menuItemRepository.Delete(item);
         }
     }
 }

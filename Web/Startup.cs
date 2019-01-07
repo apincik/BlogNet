@@ -17,6 +17,8 @@ using Core.Entities;
 using AutoMapper;
 using Web.Mappings;
 using Web.Filters;
+using Core.Interfaces.Repositories;
+using Infrastructure.Data.Repositories;
 
 namespace Web
 {
@@ -90,20 +92,31 @@ namespace Web
                 options.LogoutPath = "/Account/User/Logout";
             });
 
-            //Setup for AutoMapper.
+            // Setup for AutoMapper.
             services.AddAutoMapper();
             Mapper.Initialize(config => config.AddProfile<MappingProfile>());
 
-            //Application user services.
+            // Application user services.
             services.AddTransient<UserManager<ApplicationUser>>();
             services.AddTransient<SignInManager<ApplicationUser>>();
             services.AddTransient<RoleManager<IdentityRole>>();
 
-            //Custom services.
+            // Custom services.
             services.AddScoped<ITime, Time>();
 
-            //Domain services
-            services.AddTransient(typeof(IAsyncModel<>), typeof(Infrastructure.Data.Repository<>));
+            // Repositories
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ISeoRepository, SeoRepository>();
+            services.AddScoped<IAlbumRepository, AlbumRepository>();
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
+            services.AddScoped<IArticleRepository, ArticleRepository>();
+            services.AddScoped<IArticleSettingsRepository, ArticleSettingsRepository>();
+            services.AddScoped<ITemplateVariableRepository, TemplateVariableRepository>();
+            services.AddScoped<IPageForwardRepository, PageForwardRepository>();
+            services.AddScoped<IMenuItemRepository, MenuItemRepository>();
+
+            // Domain services
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IApplicationUserManager, ApplicationUserManager>();
@@ -127,26 +140,17 @@ namespace Web
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            //if (env.IsDevelopment())
-            // {
-            //     app.UseDeveloperExceptionPage();
-            // }
-            // else
-            // {
-            //     app.UseExceptionHandler("/Home/Error");
-            // }
-
-            app.UseDeveloperExceptionPage();
-            app.UseStaticFiles();
-            app.UseAuthentication();
-            app.UseSession();
-
-            //Possible move to background task, anyway used only in dev env.
+            //@TODO Update
             if (env.IsDevelopment())
             {
                 //Set DB default data, session.
-                //app.SeedData().GetAwaiter().GetResult();
+                app.SeedData().GetAwaiter().GetResult();
+                app.UseDeveloperExceptionPage();
             }
+
+            app.UseStaticFiles();
+            app.UseAuthentication();
+            app.UseSession();
 
             app.UseMvc(routes =>
             {

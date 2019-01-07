@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -20,13 +21,16 @@ namespace Web.Areas.Account.Controllers
     {
         private IProjectService _projectService;
         private UserManager<ApplicationUser> _userManager;
+        private IProjectRepository _projectRepository;
         private IMapper _mapper;
 
         public ProjectController(
+            IProjectRepository projectRepository,
             IProjectService projectService,
             UserManager<ApplicationUser> userManager,
             IMapper mapper)
         {
+            _projectRepository = projectRepository;
             _projectService = projectService;
             _userManager = userManager;
             _mapper = mapper;
@@ -34,7 +38,7 @@ namespace Web.Areas.Account.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var projects = await _projectService.ListAll();
+            var projects = await _projectRepository.ListAll();
             return View(new ProjectViewModel {
                 Projects = projects
             });
@@ -67,7 +71,7 @@ namespace Web.Areas.Account.Controllers
 
         public async Task<IActionResult> Update(int id)
         {
-            var project = await _projectService.Get(id);
+            var project = await _projectRepository.Get(id);
             var model = _mapper.Map<ProjectUpdateViewModel>(project);
 
             return View(model);
@@ -86,7 +90,7 @@ namespace Web.Areas.Account.Controllers
                 return View("update", model);
             }
 
-            var project = await _projectService.Get(model.Id);
+            var project = await _projectRepository.Get(model.Id);
             var projectMap = _mapper.Map(model, project);
             await _projectService.Update(projectMap);
 

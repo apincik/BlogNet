@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IPageForwardService : IService<PageForward>
+    public interface IPageForwardService
     {
         Task DeleteById(int id);
-        Task<PageForward> Create(PageForward variable);
-        Task<PageForward> Update(PageForward variable);
-        Task<List<PageForward>> ListAllByProjectId(int id);
+        Task Create(PageForward variable);
+        Task Update(PageForward variable);
     }
 }

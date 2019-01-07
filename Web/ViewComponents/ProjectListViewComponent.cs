@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -17,21 +18,21 @@ namespace Web.ViewComponents
     public class ProjectListViewComponent : ViewComponent
     {
         private UserManager<ApplicationUser> _userManager;
-        private IProjectService _projectService;
+        private IProjectRepository _projectRepository;
         //private IHttpContextAccessor _httpContext;
 
         public ProjectListViewComponent(
             UserManager<ApplicationUser> userManager,
-            IProjectService projectService)
+            IProjectRepository projectRepository)
         {
             _userManager = userManager;
-            _projectService = projectService;
+            _projectRepository = projectRepository;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            List<Project> userProjects = await _projectService.ListAllByUserId(user.Id);
+            List<Project> userProjects = await _projectRepository.ListAllByUserId(user.Id);
             int? selectedProjectId = HttpContext.Request.Cookies.GetProjectId();
 
             return View("Default", new ProjectListViewModel {

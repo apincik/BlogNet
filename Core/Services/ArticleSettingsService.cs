@@ -1,29 +1,28 @@
 ﻿using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Core.Interfaces.Repositories;
 using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class ArticleSettingsService : Service<ArticleSettings>, IArticleSettingsService
+    public class ArticleSettingsService : IArticleSettingsService
     {
-        public ArticleSettingsService(IAsyncModel<ArticleSettings> model, ISeoService seoService) : base(model)
+        private IArticleSettingsRepository _articleSettingsRepository;
+
+        public ArticleSettingsService(IArticleSettingsRepository articleSettingsRepository)
         {
+            _articleSettingsRepository = articleSettingsRepository;
         }
 
-        public async Task<ArticleSettings> Create(ArticleSettings settings)
+        public Task Create(ArticleSettings settings)
         {
-            return await Repository.AddAsync(settings);
+            return _articleSettingsRepository.Add(settings);
         }
 
         public async Task Update(ArticleSettings articleSettings)
         {
-            await Repository.UpdateAsync(articleSettings);
+            await _articleSettingsRepository.Update(articleSettings);
         }
     }
 }

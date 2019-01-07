@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface ISeoService : IService<Seo>
+    public interface ISeoService
     {
-        Task<Seo> Create(Seo project);
-        Task<Seo> Update(Seo project);
+        Task Create(Seo project);
+        Task Update(Seo project);
     }
 }

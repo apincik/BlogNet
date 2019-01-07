@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
+using Core.Interfaces.Repositories;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Web.Areas.Cms.ViewModels;
@@ -15,13 +16,16 @@ namespace Web.Areas.Cms.Controllers
     public class PhotoController : Controller
     {
         private IMapper _mapper;
+        private IPhotoRepository _photoRepository;
         private IPhotoService _photoService;
 
         public PhotoController(
             IMapper mapper,
+            IPhotoRepository photoRepository,
             IPhotoService photoService)
         {
             _mapper = mapper;
+            _photoRepository = photoRepository;
             _photoService = photoService;
         }
 
@@ -33,7 +37,7 @@ namespace Web.Areas.Cms.Controllers
 
         public async Task<IActionResult> Album(int id)
         {
-            var photos = await _photoService.ListAllByAlbumId(id);
+            var photos = await _photoRepository.ListAllByAlbumId(id);
             return View(new PhotoAlbumViewModel()
             {
                 AlbumId = id,

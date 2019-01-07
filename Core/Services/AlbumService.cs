@@ -2,49 +2,39 @@
 using Core.Enum;
 using Core.Extensions;
 using Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Core.Interfaces.Repositories;
 using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class AlbumService : Service<Album>, IAlbumService
+    public class AlbumService : IAlbumService
     {
-        public AlbumService(IAsyncModel<Album> model) : base(model)
+        private IAlbumRepository _albumRepository;
+
+        public AlbumService(IAlbumRepository albumRepository)
         {
+            _albumRepository = albumRepository;
         }
 
-        public async Task<Album> Create(Album album, AlbumType type = AlbumType.Custom)
+        public Task Create(Album album, AlbumType type = AlbumType.Custom)
         {
             album.NameNormalized = album.Name.GenerateSlug();
             album.Status = Status.Inactive;
             album.Type = type;
-            album = await Repository.AddAsync(album);
-
-            return album;
+            return _albumRepository.Add(album);
         }
 
-        public async Task<Album> Update(Album album)
+        public Task Update(Album album)
         {
             album.NameNormalized = album.Name.GenerateSlug();
-            await Repository.UpdateAsync(album);
-            
-            return album;
-        }
-
-        public Task<List<Album>> ListAllByIdWithPhotos()
-        {
-            throw new NotImplementedException();
+            return _albumRepository.Update(album);
         }
 
         public async Task ToggleStatusById(int id)
         {
-            Album cat = await Repository.Table().FindAsync(id);
+            Album cat = await _albumRepository.Get(id);
             cat.Status = cat.Status == Status.Inactive ? Status.Active : Status.Inactive;
-            await Repository.UpdateAsync(cat);
+            await _albumRepository.Update(cat);
         }
     }
 }
