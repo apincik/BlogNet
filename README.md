@@ -12,13 +12,12 @@ Simple personal project for content management.
 - OnPage features (menu, content forwarding, variables,...)
 
 ### Projects
-Design inspired by https://github.com/dotnet-architecture/eShopOnWeb
+Design inspired by https://github.com/dotnet-architecture/eShopOnWeb, https://github.com/JasonGT/NorthwindTraders
 - CQRS - Services
 - AutoMapper
 - MVVM
 - PostgreSQL
-##### WebApi
-- MediatR
+- MediaTr
 - Swagger
 
 ### Solution for
