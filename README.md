@@ -13,10 +13,10 @@ Simple personal project for content management.
 
 ### Projects
 Design inspired by https://github.com/dotnet-architecture/eShopOnWeb
-- Service/Repository pattern
+- CQRS - Services
 - AutoMapper
 - MVVM
-- MySQL
+- PostgreSQL
 ##### WebApi
 - MediatR
 - Swagger
@@ -24,17 +24,15 @@ Design inspired by https://github.com/dotnet-architecture/eShopOnWeb
 ### Solution for
 - Single managment for multiple simple blog websites. 
 - Easy integration of frontend (like Angular project) with API
-- Additional projects for managing various SEO features, social and other 3th party tools...
+- Possibility for additional projects for managing various SEO features, social and other 3th party tools...
 
 ### Implementation
-- [ ] Possible naming refactoring
-- [ ] Repository query specifications
-- [ ] Error handling
+- [ ] Improve error handling
 - [ ] API authentication / authorization for projects
 - [ ] Better data view in tables
 - [ ] Adding new feature projects
-- [ ] Docker file
+- [ ] Default docker file in GitHub repository
 - [ ] ...
 
 ### Conclusion
-I manage my personal Git repository for this project. In case of useful features i will add feature commit also here on GitHub.  Quick and lean dev is preffered in this project.
+I manage my personal Git repository for this project. In case of useful features i will add feature commits also here on GitHub.  Quick and lean dev is preffered in this project. The goal of the project is create simple managment for multiple websites and create integrations with custom and 3th party tools.
