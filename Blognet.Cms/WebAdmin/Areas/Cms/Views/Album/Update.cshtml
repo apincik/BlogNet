@@ -1,0 +1,23 @@
+﻿@model Blognet.Cms.Core.Albums.Models.AlbumDetailViewModel
+@{
+    ViewData["Title"] = "Category";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Album Update</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+    </div>
+</div>
+
+<div>
+    @using (Html.BeginForm("Update", "Album", FormMethod.Post, new { @class = "form" }))
+    {
+        @Html.HiddenFor(m => m.Id);
+        
+        @Html.ValidationMessageFor(m => m.Name)
+        @Html.LabelFor(m => m.Name)
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control" } )
+
+        <input type="submit" value="Submit" class="btn btn-success mt-3" />
+    }
+</div>

@@ -1,0 +1,33 @@
+﻿@using Blognet.Cms.Core.MenuItems.Models;
+@model MenuItemDetailViewModel
+@{
+    ViewData["Title"] = "Menu Item - Update";
+}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Update menu item</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+    </div>
+</div>
+
+
+<div class="pb-5">
+    @using (Html.BeginForm("Update", "Menu", FormMethod.Post, new { @class = "form" }))
+    {
+        @Html.HiddenFor(m => m.Id)
+        @Html.HiddenFor(m => m.ProjectId)
+
+        @Html.ValidationMessageFor(m => m.ParentMenuId);
+        @Html.LabelFor(m => m.ParentMenuId);
+        @Html.DropDownListFor(m => m.ParentMenuId, new SelectList(Model.Items, "Id", "Title"), "Parent menu", new { @class = "form-control" });
+
+        @Html.ValidationMessageFor(m => m.Title)
+        @Html.LabelFor(m => m.Title)
+        @Html.TextBoxFor(m => m.Title, new { @class = "form-control" })
+
+        @Html.ValidationMessageFor(m => m.Url)
+        @Html.LabelFor(m => m.Url)
+        @Html.TextBoxFor(m => m.Url, new { @class = "form-control" })
+
+        <input type="submit" value="Submit" class="btn btn-success mt-5 col-lg-12" />
+    }
+</div>

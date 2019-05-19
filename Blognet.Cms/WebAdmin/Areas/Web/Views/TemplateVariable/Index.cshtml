@@ -1,0 +1,49 @@
+﻿@using Blognet.Cms.Domain.Extensions;
+@using Blognet.Cms.Domain.Enum;
+@using Blognet.Cms.Core.Model;
+@model List<TemplateVariableDTO>
+@{
+    ViewData["Title"] = "Template variables";
+}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Template variables</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="@Url.Action("Create")" class="btn btn-sm btn-success">Create</a>
+    </div>
+</div>
+
+<div>
+    <table class="table top-borderless">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Label</th>
+                <th>Raw</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (TemplateVariableDTO variable in Model)
+            {
+                <tr>
+                    <td>@variable.Id</td>
+                    <td>@variable.Label</td>
+                    <td>@variable.ShowRaw.ToString()</td>
+                    <td>@(DescriptionExtension.GetDescription<ProjectVariableType>(variable.Type))</td>
+                    <td>
+                        <a href="@Url.Action("ToggleStatus", "TemplateVariable", new { area = "Web", id = variable.Id})" class="@(variable.Status == Status.Inactive ? "badge badge-warning" : (variable.Status == Status.Deleted ? "badge badge-dark" : "badge badge-success") )">
+                            @(DescriptionExtension.GetDescription<Status>(variable.Status))
+                        </a>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("Update", "TemplateVariable", new { area = "Web", id = variable.Id})" class="btn btn-sm btn-warning">Update</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+</table>
+</div>

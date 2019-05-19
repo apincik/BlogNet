@@ -1,0 +1,53 @@
+﻿@using Blognet.Cms.WebAdmin.Areas.Account.ViewModels;
+@{
+    ViewData["Title"] = "Project";
+}
+
+@using Blognet.Cms.Core.Model;
+@model List<ProjectDTO>
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Projects</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="@Url.Action("Create")" class="btn btn-sm btn-success">Create</a>
+    </div>
+</div>
+
+<div>
+    <table class="table top-borderless">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>UserID</th>
+                <th>Name</th>
+                <th>DomainName</th>
+                <th>Description</th>
+                <th>CreatedAt</th>
+                <th>UpdatedAt</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (ProjectDTO project in Model)
+            {
+            <tr>
+                <td>@project.Id</td>
+                <td>@project.UserId</td>
+                <td>@project.Name</td>
+                <td>@project.DomainName</td>
+                <td>@project.Description</td>
+                <td>@project.CreatedAt.ToString("dd-mm-yyyy")</td>
+                <td>@project.UpdatedAt.ToString("dd-mm-yyyy")</td>
+                <td>
+                    <a href="@Url.Action("Update", "Project", new { area = "Account", id = project.Id})" class="btn btn-sm btn-warning">Update</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+

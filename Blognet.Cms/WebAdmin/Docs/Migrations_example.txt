@@ -1,0 +1,13 @@
+﻿dotnet ef migrations add InitialModel --context webcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj -o Data/Migrations
+
+// From Web project folder - if configured MigrationAssembly for context
+dotnet ef migrations add Initial --context Infrastructure.Identity.AppIdentityContext -0 ../Infrastructure/Identity/Migrations
+
+//Define project
+//cd Infrastructure
+dotnet ef migrations add Initial --context Infrastructure.Data.WebContext -o Data/Migrations --startup-project ../Web/
+
+//Update DB
+//cd Infrastructure
+dotnet ef database update --context Infrastructure.Data.WebContext --startup-project ../Web/
+dotnet ef database update --context Infrastructure.Identity.AppIdentityContext --startup-project ../Web/ --configuration Debug

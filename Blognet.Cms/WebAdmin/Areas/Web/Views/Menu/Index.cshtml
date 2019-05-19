@@ -1,0 +1,45 @@
+﻿@using Blognet.Cms.Domain.Entities;
+@using Blognet.Cms.Domain.Extensions;
+@using Blognet.Cms.Domain.Enum;
+@using Blognet.Cms.Core.Model;
+@model List<MenuItemDTO>
+@{
+    ViewData["Title"] = "Menu";
+}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Menu</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="@Url.Action("Create")" class="btn btn-sm btn-success">Create</a>
+    </div>
+</div>
+
+<div>
+    <table class="table top-borderless">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>URL</th>
+                <th>Parent Menu</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (MenuItemDTO item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Title</td>
+                    <td>@item.Url</td>
+                    <td>@(item.ParentMenu != null ? item.ParentMenu.Title : "")</td>
+                    <td>
+                        <a href="@Url.Action("Update", "Menu", new { area = "Web", id = item.Id})" class="btn btn-sm btn-warning">Update</a>
+                        <a href="@Url.Action("Delete", "Menu", new { area = "Web", id = item.Id})" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+</table>
+</div>

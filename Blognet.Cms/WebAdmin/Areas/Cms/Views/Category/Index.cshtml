@@ -1,0 +1,50 @@
+﻿@using Blognet.Cms.Domain.Extensions;
+@using Blognet.Cms.Domain.Enum;
+@using Blognet.Cms.Core.Model;
+@model List<CategoryDTO>
+@{
+    ViewData["Title"] = "Category";
+}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Category</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="@Url.Action("Create")" class="btn btn-sm btn-success">Create</a>
+    </div>
+</div>
+
+<div>
+    <table class="table top-borderless">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ParentCategory</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (CategoryDTO cat in Model)
+            {
+            <tr>
+                <td>@cat.Id</td>
+                <td>@(cat.ParentCategory != null ? cat.ParentCategory.Title : "")</td>
+                <td>@cat.Title</td>
+                <td>@cat.Description</td>
+                <td>
+                    <a href="@Url.Action("ToggleStatus", "Category", new { area = "Cms", id = cat.Id})" class="@(cat.Status == Status.Inactive ? "badge badge-warning" : "badge badge-success" )">
+                        @(DescriptionExtension.GetDescription<Status>(cat.Status))
+                    </a>
+                </td>
+                <td>
+                    <a href="@Url.Action("Update", "Category", new { area = "Cms", id = cat.Id})" class="btn btn-sm btn-warning">Update</a>
+                    <a href="@Url.Action("Delete", "Category", new { area = "Cms", id = cat.Id})" class="btn btn-sm btn-danger btn-delete">Delete</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+</table>
+</div>
